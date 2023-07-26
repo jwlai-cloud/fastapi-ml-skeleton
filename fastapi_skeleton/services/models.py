@@ -25,20 +25,17 @@ class HousePriceModel(object):
 
     def _pre_process(self, payload: HousePredictionPayload) -> List:
         logger.debug("Pre-processing payload.")
-        result = np.asarray(payload_to_list(payload)).reshape(1, -1)
-        return result
+        return np.asarray(payload_to_list(payload)).reshape(1, -1)
 
     def _post_process(self, prediction: np.ndarray) -> HousePredictionResult:
         logger.debug("Post-processing prediction.")
         result = prediction.tolist()
         human_readable_unit = result[0] * self.RESULT_UNIT_FACTOR
-        hpp = HousePredictionResult(median_house_value=human_readable_unit)
-        return hpp
+        return HousePredictionResult(median_house_value=human_readable_unit)
 
     def _predict(self, features: List) -> np.ndarray:
         logger.debug("Predicting.")
-        prediction_result = self.model.predict(features)
-        return prediction_result
+        return self.model.predict(features)
 
     def predict(self, payload: HousePredictionPayload):
         if payload is None:
@@ -47,6 +44,4 @@ class HousePriceModel(object):
         pre_processed_payload = self._pre_process(payload)
         prediction = self._predict(pre_processed_payload)
         logger.info(prediction)
-        post_processed_result = self._post_process(prediction)
-
-        return post_processed_result
+        return self._post_process(prediction)
